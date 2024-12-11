@@ -22,8 +22,8 @@ body {
 }
 
 body::-webkit-scrollbar {
-  width: 3px; /* Width of the scrollbar */
-  height: 3px; /* Height of the scrollbar (for horizontal scrollbars) */
+  width: 1px; /* Width of the scrollbar */
+  height: 1px; /* Height of the scrollbar (for horizontal scrollbars) */
 }
 
 body::-webkit-scrollbar-track {
@@ -33,7 +33,7 @@ body::-webkit-scrollbar-track {
 body::-webkit-scrollbar-thumb {
   background-color: #6a09d9; /* Color of the scrollbar thumb */
   border-radius: 10px; /* Rounded corners of the scrollbar thumb */
-  border: 3px solid #0b0a0a; /* Adds space around the thumb */
+  border: 2px solid #0b0a0a; /* Adds space around the thumb */
 }
 
 body::-webkit-scrollbar-thumb:hover {
@@ -47,3 +47,33 @@ body::-webkit-scrollbar-thumb:active {
 #product-list::-webkit-scrollbar {
   display: none;
 }
+
+.text-gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 1),
+    rgba(136, 0, 255, 0.866)
+  ); /* Replace with your desired gradient colors */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient-animation {
+  background: linear-gradient(90deg, #3498db, #8e44ad, #1abc9c);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradientAnimation 15s ease-in-out infinite;
+}
+

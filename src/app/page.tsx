@@ -1,11 +1,13 @@
-import {
-  HeroSection,
-  GlobeSection,
-  ItemsList,
-  ClientsSection,
-} from "@/components";
+import { ItemsList, ClientsSection } from "@/components";
 import { HeroParallax } from "@/components/ui/hero-parallax";
+import dynamic from "next/dynamic";
 
+const HeroSection = dynamic(() => import("@/components/HeroSection"), {
+  ssr: false,
+});
+const GlobeSection = dynamic(() => import("@/components/GlobeSection"), {
+  ssr: false,
+});
 const products = [
   {
     title: "Moonbeam",

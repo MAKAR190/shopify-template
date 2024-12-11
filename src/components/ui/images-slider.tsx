@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAnimation } from "@/context/AnimationContext";
-import { BackgroundGradient } from "../ui/background-gradient";
+"use client";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from "react";
 
 export const ImagesSlider = ({
   images,
@@ -10,6 +9,7 @@ export const ImagesSlider = ({
   overlay = true,
   overlayClassName,
   className,
+  autoplay = true,
   direction = "up",
 }: {
   images: string[];
@@ -17,17 +17,32 @@ export const ImagesSlider = ({
   overlay?: React.ReactNode;
   overlayClassName?: string;
   className?: string;
+  autoplay?: boolean;
   direction?: "up" | "down";
 }) => {
-  const { triggerAnimation } = useAnimation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
+  const [isHovered, setIsHovered] = useState(false); // State to track hover
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex + 1 === images.length ? 0 : prevIndex + 1
+    );
+  };
+
+  const handlePrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex - 1 < 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
 
   useEffect(() => {
     loadImages();
   }, []);
 
   const loadImages = () => {
+    setLoading(true);
     const loadPromises = images.map((image) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -40,21 +55,34 @@ export const ImagesSlider = ({
     Promise.all(loadPromises)
       .then((loadedImages) => {
         setLoadedImages(loadedImages as string[]);
+        setLoading(false);
       })
       .catch((error) => console.error("Failed to load images", error));
   };
 
   useEffect(() => {
-    if (triggerAnimation) {
-      handleNext();
-    }
-  }, [triggerAnimation]);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") {
+        handleNext();
+      } else if (event.key === "ArrowLeft") {
+        handlePrevious();
+      }
+    };
 
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex + 1 === images.length ? 0 : prevIndex + 1
-    );
-  };
+    window.addEventListener("keydown", handleKeyDown);
+
+    let interval: any;
+    if (autoplay && !isHovered) {
+      interval = setInterval(() => {
+        handleNext();
+      }, 5000);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearInterval(interval);
+    };
+  }, [isHovered]); // Add isHovered as a dependency
 
   const slideVariants = {
     initial: {
@@ -90,35 +118,37 @@ export const ImagesSlider = ({
   const areImagesLoaded = loadedImages.length > 0;
 
   return (
-    <BackgroundGradient>
-      <div
-        className={cn(
-          "overflow-hidden h-full w-full relative flex items-center justify-center z-0",
-          className
-        )}
-        style={{
-          perspective: "1000px",
-        }}
-      >
-        {areImagesLoaded && children}
-        {areImagesLoaded && overlay && (
-          <div className={cn("absolute inset-0 z-auto", overlayClassName)} />
-        )}
+    <div
+      className={cn(
+        "overflow-hidden h-full rounded-full relative flex items-center justify-center z-10 cursor-pointer w-full max-h-[700px]  transition-all duration-500 ease-in-out hover:rounded-sm ",
+        className
+      )}
+      style={{
+        perspective: "1000px",
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {areImagesLoaded && children}
+      {areImagesLoaded && overlay && (
+        <div
+          className={cn("absolute z-0 inset-0 rounded-lg", overlayClassName)}
+        />
+      )}
 
-        {areImagesLoaded && (
-          <AnimatePresence>
-            <motion.img
-              key={currentIndex}
-              src={loadedImages[currentIndex]}
-              initial="initial"
-              animate="visible"
-              exit={direction === "up" ? "upExit" : "downExit"}
-              variants={slideVariants}
-              className="image max-[1023px]:h-[500px] max-[1023px]:w-[500px] max-[1023px]:my-0 max-[600px]:w-[80%] max-[600px]:h-auto h-auto w-full max-w-[80%] mx-auto my-auto absolute inset-0 object-cover object-center"
-            />
-          </AnimatePresence>
-        )}
-      </div>
-    </BackgroundGradient>
+      {areImagesLoaded && (
+        <AnimatePresence>
+          <motion.img
+            key={currentIndex}
+            src={loadedImages[currentIndex]}
+            initial="initial"
+            animate="visible"
+            exit={direction === "up" ? "upExit" : "downExit"}
+            variants={slideVariants}
+            className="h-full cursor-pointer w-full transition-all duration-500 ease-in-out hover:rounded-sm mx-auto object-contain rounded-full absolute inset-0"
+          />
+        </AnimatePresence>
+      )}
+    </div>
   );
 };

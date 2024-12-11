@@ -1,4 +1,3 @@
-// components/FlipWords.tsx
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAnimation } from "@/context/AnimationContext";
@@ -23,15 +22,18 @@ export const FlipWords = ({
   const currentWord = words[currentWordIndex];
 
   return (
-    <div className={cn("relative", className)} style={{ height: "2em" }}>
+    <span
+      className={cn("inline-flex", className)}
+      style={{ minWidth: "200px" }}
+    >
       <AnimatePresence initial={false}>
-        <motion.div
+        <motion.span
           key={currentWord}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="absolute"
+          className="inline-flex"
         >
           {currentWord.split("").map((letter, index) => (
             <motion.span
@@ -44,8 +46,8 @@ export const FlipWords = ({
               {letter}
             </motion.span>
           ))}
-        </motion.div>
+        </motion.span>
       </AnimatePresence>
-    </div>
+    </span>
   );
 };
